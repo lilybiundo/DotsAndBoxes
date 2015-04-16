@@ -20,7 +20,7 @@ class Node:
             lambda c: c.wins/c.visits + UCTK * sqrt(2*log(self.visits)/c.visits to vary the amount of
             exploration versus exploitation.
         """
-        s = sorted(self.childNodes, key = lambda c: c.score/c.visits + .3 * sqrt(2*log(self.visits)/c.visits))[-1]
+        s = sorted(self.childNodes, key = lambda c: c.score/c.visits + sqrt(2*log(self.visits)/c.visits))[-1]
         return s
 
     def AddChild(self, m, s):
@@ -59,7 +59,7 @@ class Node:
              s += str(c) + "\n"
         return s
 
-def UCT(rootstate, rolloutDepth = 'inf', dur = 1, verbose = False):
+def UCT(rootstate, rolloutDepth = int('inf'), dur = 1, verbose = False):
     """ Conduct a UCT search for dur second(s) starting from rootstate.
         Return the best move from the rootstate."""
 
@@ -142,6 +142,11 @@ def UCT(rootstate, rolloutDepth = 'inf', dur = 1, verbose = False):
         gamescore = outcome(state.get_score())
         debugStr += "\t\tSimulation score is " + str(gamescore) + ".\n"
         while node != None:
+            if node.parentNode != None:
+               print node.parentNode.playerTurn
+               if node.parentNode.playerTurn != me:
+                  gamescore = -gamescore
+            
             node.Update(gamescore)
             node = node.parentNode
 
@@ -157,11 +162,12 @@ def UCT(rootstate, rolloutDepth = 'inf', dur = 1, verbose = False):
     sample_rate = float(iterations)/(t_now - t_start)
     print "%s samples per second" % (sample_rate)
     #print rootnode.TreeToString(0)
-    #for c in rootnode.childNodes:
-    #    print "S: " + str(c.score) + " V: " + str(c.visits) + " S/V: " + str(c.score/c.visits) + " Move: " + str(c.move)
+    rootnode.childNodes.sort(key = lambda c: c.score/c.visits)
+    for c in rootnode.childNodes:
+        print "S: " + str(c.score) + " V: " + str(c.visits) + " S/V: " + str(c.score/c.visits) + " Move: " + str(c.move)
 
     movelist = sorted(rootnode.childNodes, key = lambda c: c.score/c.visits)
-    #print "Selected move = " + str(movelist[-1].move)
+    print "Selected move = " + str(movelist[-1].move)
     debugStr += "Selecting move " + str(movelist[-1].move)
     if (verbose): print debugStr
     return movelist[-1].move

@@ -1,10 +1,10 @@
 import random
 import time
-from UCT_new import uctsearch
+from UCT import UCT
 
 def think(state, quip):
 
-	move = uctsearch(state, 5)
+	move = UCT(state, 5, verbose = False)
 
 
 	return move
